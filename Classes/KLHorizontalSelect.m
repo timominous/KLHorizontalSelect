@@ -32,7 +32,7 @@
 }
 -(void) initialize {
     //Configure the arrow
-    self.arrow = [[KLHorizontalSelectArrow alloc] initWithFrame:CGRectMake(0, kDefaultCellHeight, kHeaderArrowWidth, kHeaderArrowHeight)color:kDefaultGradientBottomColor];
+    self.arrow = [[KLHorizontalSelectArrow alloc] initWithFrame:CGRectMake(0, kDefaultCellHeight, kHeaderArrowWidth, kHeaderArrowHeight)color:self.backgroundColor];
     [self.arrow setCenter:CGPointMake(self.frame.size.width/2.0, kDefaultCellHeight)];
     [self addSubview:self.arrow];
     
@@ -72,37 +72,12 @@
 -(void) setFrame:(CGRect)frame {
     [super setFrame:CGRectMake(frame.origin.x, frame.origin.y, frame.size.width, kDefaultCellHeight)];
 }
--(void) drawRect:(CGRect)rect {
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    // Draw gradient
-    CGGradientRef myGradient;
-    CGColorSpaceRef myColorspace;
-    size_t num_locations = 2;
-    CGFloat locations[2] = { 0.0, 1.0 };
-    
-    CGFloat topRed = 0.0, topGreen = 0.0, topBlue = 0.0, topAlpha =0.0;
-    [kDefaultGradientTopColor getRed:&topRed green:&topGreen blue:&topBlue alpha:&topAlpha];
-    
-    CGFloat bottomRed = 0.0, bottomGreen = 0.0, bottomBlue = 0.0, bottomAlpha =0.0;
-    [kDefaultGradientBottomColor getRed:&bottomRed green:&bottomGreen blue:&bottomBlue alpha:&bottomAlpha];
-    
-    CGFloat components[8] = { topRed, topGreen, topBlue, topAlpha,  // Start color
-        bottomRed, bottomGreen, bottomBlue, bottomAlpha}; // End color
-    
-    myColorspace = CGColorSpaceCreateDeviceRGB();
-    
-    myGradient = CGGradientCreateWithColorComponents (myColorspace, components,
-                                                      locations, num_locations);
-    CGColorSpaceRelease(myColorspace);
-    CGPoint myStartPoint, myEndPoint;
-    myStartPoint.x = self.frame.size.width/2;
-    myStartPoint.y = 0.0;
-    myEndPoint.x = self.frame.size.width/2;
-    myEndPoint.y = self.frame.size.height;
-    CGContextDrawLinearGradient (context, myGradient, myStartPoint, myEndPoint, 0);
-    CGGradientRelease(myGradient);
 
+-(void) setBackgroundColor:(UIColor *)backgroundColor {
+    [super setBackgroundColor:backgroundColor];
+    [self.arrow color:backgroundColor];
 }
+
 #pragma mark - UIScrollViewDelegate implementation
 
 -(void) scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
@@ -226,7 +201,7 @@
 
         CAShapeLayer *shapeLayer = [CAShapeLayer layer];
         [shapeLayer setPath:path];
-        [shapeLayer setFillColor:[kDefaultGradientBottomColor CGColor]];
+        [shapeLayer setFillColor:[color CGColor]];
         
         
         
@@ -238,6 +213,23 @@
 
     }
     return self;
+}
+- (void) color:(UIColor*)color {
+  for (CAShapeLayer *layer in self.layer.sublayers)
+    [layer removeFromSuperlayer];
+  CGMutablePathRef path = CGPathCreateMutable();
+  CGPathMoveToPoint(path,NULL,0.0,0.0);
+  CGPathAddLineToPoint(path, NULL, 0.0f, 0.0f);
+  CGPathAddLineToPoint(path, NULL, self.frame.size.width, 0.0f);
+  CGPathAddLineToPoint(path, NULL, self.frame.size.width/2.0, self.frame.size.height);
+  
+  CAShapeLayer *shapeLayer = [CAShapeLayer layer];
+  [shapeLayer setPath:path];
+  [shapeLayer setFillColor:[color CGColor]];
+  
+  [self.layer addSublayer:shapeLayer];
+  
+  CGPathRelease(path);
 }
 -(void) show:(BOOL) animated {
     if (!self.isShowing) {

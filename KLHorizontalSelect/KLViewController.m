@@ -29,6 +29,7 @@
 	// Do any additional setup after loading the view, typically from a nib.
     [self.horizontalSelect setTableData: controlData];
     [self.horizontalSelect setDelegate:self];
+    [self.horizontalSelect setBackgroundColor:UIColor.lightGrayColor];
     //Customize the initially selected index - Note section is redundant but should always be 0
     [self.horizontalSelect setCurrentIndex:[NSIndexPath indexPathForRow:4 inSection:0]];
 }
